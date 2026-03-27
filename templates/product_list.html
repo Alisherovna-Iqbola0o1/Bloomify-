@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}🌸 Bloomify - Products{% endblock %}
+
+{% block content %}
+<section class="products">
+    <h1 class="page-title">
+        {% if category %}{{ category.title }} Flowers{% else %}All Flowers{% endif %}
+    </h1>
+
+    {% if products %}
+    <div class="grid-container">
+        {% for product in products %}
+        <div class="card">
+            <img src="{{ product.image.url }}" alt="{{ product.title }}">
+            <h3>{{ product.title }}</h3>
+            <p>{{ product.description|truncatechars:60 }}</p>
+            <p class="price">${{ product.price|floatformat:2 }}</p>
+            <p>Seen: {{ product.seen_count }}</p>
+            <a href="{% url 'products:detail' product.slug %}" class="btn">View & Buy</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No products found in this category.</p>
+    {% endif %}
+</section>
+{% endblock %}

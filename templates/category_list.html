@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}🌸 Bloomify - Categories{% endblock %}
+
+{% block content %}
+<section class="categories">
+    <h1 class="page-title">Flower Categories by Country</h1>
+
+    {% if categories %}
+    <div class="grid-container">
+        {% for category in categories %}
+        <div class="card">
+            <img src="{{ category.flag.url }}" alt="{{ category.title }} flag">
+            <h3>{{ category.title }}</h3>
+            <a href="{% url 'products:list_by_category' category.slug %}" class="btn">View Flowers</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No categories found.</p>
+    {% endif %}
+</section>
+{% endblock %}

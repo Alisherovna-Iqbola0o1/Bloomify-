@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}🌸 Bloomify - Cart{% endblock %}
+
+{% block content %}
+<section class="cart">
+    <h1 class="page-title">Your Cart</h1>
+
+    {% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Flower</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.title }}</td>
+                <td>${{ item.product.price }}</td>
+                <td>
+                    <form method="POST" action="{% url 'cart:update' item.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input">
+                        <button type="submit" class="btn">Update</button>
+                    </form>
+                </td>
+                <td>${{ item.product.price|floatformat:2|add:"0"|floatformat:2|stringformat:"s"|floatformat:2 }}</td>
+                <td>
+                    <form method="POST" action="{% url 'cart:remove' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn" style="background:#ff8a8a;">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-price">
+        <strong>Total: </strong>${{ cart_total|floatformat:2 }}
+    </div>
+
+    <a href="{% url 'checkout' %}" class="btn">Proceed to Checkout</a>
+
+    {% else %}
+    <p>Your cart is empty. <a href="{% url 'home' %}">Continue shopping</a>.</p>
+    {% endif %}
+</section>
+{% endblock %}

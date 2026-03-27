@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}🌸 Bloomify - Checkout{% endblock %}
+
+{% block content %}
+<section class="checkout">
+    <h1 class="page-title">Checkout</h1>
+
+    {% if cart_items %}
+    <form method="POST" action="{% url 'checkout:process' %}">
+        {% csrf_token %}
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Flower</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.title }}</td>
+                    <td>${{ item.product.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-price">
+            <strong>Total: </strong>${{ cart_total|floatformat:2 }}
+        </div>
+
+        <div class="payment-section">
+            <label for="payment_type"><strong>Select Payment Type:</strong></label>
+            <select id="payment_type" name="payment_type" required>
+                <option value="cash" {% if payment_type == 'cash' %}selected{% endif %}>Cash</option>
+                <option value="card" {% if payment_type == 'card' %}selected{% endif %}>Card</option>
+            </select>
+
+            <div id="card_info" style="{% if payment_type != 'card' %}display:none;{% endif %}">
+                <label for="card_number">Card Number:</label>
+                <input type="text" id="card_number" name="card_number" maxlength="12" placeholder="Enter card number">
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Confirm Order</button>
+    </form>
+    {% else %}
+    <p>Your cart is empty. <a href="{% url 'home' %}">Continue shopping</a>.</p>
+    {% endif %}
+</section>
+
+<script>
+    const paymentSelect = document.getElementById('payment_type');
+    const cardInfo = document.getElementById('card_info');
+
+    paymentSelect.addEventListener('change', function() {
+        if(this.value === 'card') {
+            cardInfo.style.display = 'block';
+        } else {
+            cardInfo.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
