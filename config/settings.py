@@ -5,10 +5,12 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# load env
 load_dotenv(BASE_DIR / ".env")
 
-# SECURITY
-SECRET_KEY = os.getenv("SECRET_KEY")
+
+# ================= SECURITY =================
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
@@ -18,7 +20,7 @@ ALLOWED_HOSTS = os.getenv(
 ).split(",")
 
 
-# APPS
+# ================= APPS =================
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -38,7 +40,7 @@ INSTALLED_APPS = [
 ]
 
 
-# MIDDLEWARE
+# ================= MIDDLEWARE =================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -52,11 +54,31 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "config.urls"
+
+
+# ================= TEMPLATES (🔥 ENG MUHIM FIX) =================
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# DATABASE
+# ================= DATABASE =================
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -65,22 +87,25 @@ DATABASES = {
 }
 
 
-# AUTH
+# ================= AUTH =================
 AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 AUTH_USER_MODEL = "users.User"
 
 
-# LANGUAGE
+# ================= LANGUAGE =================
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
 
-# STATIC
+# ================= STATIC / MEDIA =================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -88,7 +113,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# REST
+# ================= DRF =================
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -99,16 +124,16 @@ REST_FRAMEWORK = {
 }
 
 
-# JWT
+# ================= JWT =================
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 
-# CORS
+# ================= CORS =================
 CORS_ALLOW_ALL_ORIGINS = False
 
 
-# EMAIL DEV
+# ================= EMAIL (DEV ONLY) =================
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
