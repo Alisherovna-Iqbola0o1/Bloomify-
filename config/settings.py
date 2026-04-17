@@ -1,26 +1,30 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
 from datetime import timedelta
+from dotenv import load_dotenv
 
+# BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# load env
+# .env load
 load_dotenv(BASE_DIR / ".env")
 
-
-# ================= SECURITY =================
+# SECURITY
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
+# FIX: production safe debug (unchanged logic, just safer default)
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost"
-).split(",")
+# FIX: strip spaces + safer ALLOWED_HOSTS parsing
+ALLOWED_HOSTS = [
+    host.strip() for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost"
+    ).split(",")
+]
 
 
-# ================= APPS =================
+# APPLICATIONS
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -29,18 +33,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # third-party
     "rest_framework",
     "corsheaders",
 
+    # local apps
     "users",
-    "products",
-    "orders",
-    "cart",
     "categories",
+    "products",
+    "cart",
+    "orders",
 ]
 
 
-# ================= MIDDLEWARE =================
+# MIDDLEWARE
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -58,7 +64,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 
 
-# ================= TEMPLATES (🔥 ENG MUHIM FIX) =================
+# TEMPLATES
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -78,16 +84,20 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# ================= DATABASE =================
+# DATABASE
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.getenv("DB_NAME", BASE_DIR / "db.sqlite3"),
+        "USER": os.getenv("DB_USER", ""),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", ""),
     }
 }
 
 
-# ================= AUTH =================
+# PASSWORD VALIDATION
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -95,25 +105,32 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-AUTH_USER_MODEL = "users.User"
 
-
-# ================= LANGUAGE =================
+# INTERNATIONAL
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
 
-# ================= STATIC / MEDIA =================
+# STATIC & MEDIA
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-# ================= DRF =================
+# DEFAULT FIELD
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# CUSTOM USER
+AUTH_USER_MODEL = "users.User"
+
+
+# DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -124,16 +141,17 @@ REST_FRAMEWORK = {
 }
 
 
-# ================= JWT =================
+# JWT
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 
-# ================= CORS =================
-CORS_ALLOW_ALL_ORIGINS = False
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
 
 
-# ================= EMAIL (DEV ONLY) =================
+# EMAIL (DEV MODE)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
